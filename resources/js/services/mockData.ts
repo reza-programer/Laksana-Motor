@@ -177,12 +177,12 @@ export const mockTestimonials: Testimonial[] = [
   },
 ]
 
-export const WHATSAPP_NUMBER = '6281234567890'
+export const WHATSAPP_NUMBER = '6289699130479'
 
 export const SHOWROOM_INFO = {
   name: 'Laksana Motor',
   address: 'Jl. Raya Jalaksana, Kec. Jalaksana, Kabupaten Kuningan, Jawa Barat 45554',
-  phone: '0812-3456-7890',
+  phone: '0896-9913-0479',
   whatsapp: WHATSAPP_NUMBER,
   instagram: '@laksanamotor',
   operationalHours: [
