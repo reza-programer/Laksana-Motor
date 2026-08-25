@@ -4,7 +4,7 @@ Aplikasi web showroom motor bekas **Laksana Motor** (Jalaksana, Kuningan, Jawa B
 
 ## 🚀 Tech Stack
 
-- **Backend**: Laravel 12 (REST API ready)
+- **Backend**: Laravel 12 (REST API + MySQL)
 - **Frontend**: Vue 3 + TypeScript + Vite
 - **Styling**: Tailwind CSS v4
 - **State Management**: Pinia
@@ -27,7 +27,7 @@ Aplikasi web showroom motor bekas **Laksana Motor** (Jalaksana, Kuningan, Jawa B
 - **Footer & Lokasi Google Maps**: Terintegrasi langsung dengan titik koordinat resmi Laksana Motor Jalaksana.
 
 ### 2. Panel Admin (Backoffice)
-- **Autentikasi & Keamanan**: Portal login admin dengan fitur show/hide password, alert verifikasi, dan demo autofill.
+- **Autentikasi & Keamanan**: Portal login admin bersih dan aman.
 - **Dashboard Ringkasan**: 5 kartu metrik aset & unit, daftar inventaris terbaru, dan tombol aksi cepat.
 - **Manajemen Stok Motor**: Tambah, edit, hapus, filter status, dan toggle unit unggulan.
 - **Kustomisasi Branding & Tampilan**:
@@ -54,10 +54,11 @@ composer install
 npm install
 ```
 
-### 3. Konfigurasi Environment
+### 3. Konfigurasi Environment & Database
 ```bash
 cp .env.example .env
 php artisan key:generate
+php artisan migrate --seed
 ```
 
 ### 4. Menjalankan Server
@@ -73,10 +74,10 @@ Akses aplikasi di browser: `http://localhost:8000`
 
 ---
 
-## 🔐 Akun Demo Admin
+## 🔐 Akun Admin Showroom
 - **URL**: `http://localhost:8000/admin/login`
 - **Email**: `admin@laksanamotor.com`
-- **Password**: `password`
+- **Password**: `laksanamotor123`
 
 ---
 

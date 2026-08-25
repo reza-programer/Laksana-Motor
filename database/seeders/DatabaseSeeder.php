@@ -18,12 +18,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Seed Admin User
+        // 1. Seed Admin User with password: laksanamotor123
         User::updateOrCreate(
             ['email' => 'admin@laksanamotor.com'],
             [
                 'name' => 'Admin Laksana Motor',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('laksanamotor123'),
             ]
         );
 

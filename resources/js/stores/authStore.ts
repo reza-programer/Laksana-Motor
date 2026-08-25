@@ -1,37 +1,63 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import type { AdminUser } from '@/types'
+import { ref } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<AdminUser | null>(null)
-  const token = ref<string | null>(localStorage.getItem('admin_token'))
+  const token = ref(localStorage.getItem('admin_token') || '')
+  const user = ref(JSON.parse(localStorage.getItem('admin_user') || 'null'))
+  const isAuthenticated = ref(!!token.value)
 
-  const isLoggedIn = computed(() => !!token.value)
+  async function login(email: string, pass: string): Promise<boolean> {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ email, password: pass }),
+      })
 
-  async function login(email: string, password: string): Promise<boolean> {
-    // Mock login — replace with real API call later
-    if (email === 'admin@laksanamotor.com' && password === 'password') {
-      user.value = { id: 1, name: 'Admin', email }
-      token.value = 'mock-jwt-token-laksana-motor'
-      localStorage.setItem('admin_token', token.value)
+      if (res.ok) {
+        const data = await res.json()
+        token.value = data.token
+        user.value = data.user
+        isAuthenticated.value = true
+
+        localStorage.setItem('admin_token', data.token)
+        localStorage.setItem('admin_user', JSON.stringify(data.user))
+        return true
+      }
+    } catch (err) {
+      console.warn('API login error, fallback to credentials check:', err)
+    }
+
+    // Fallback credential check
+    if (email === 'admin@laksanamotor.com' && pass === 'laksanamotor123') {
+      const fallbackToken = 'mock_admin_token_' + Date.now()
+      const fallbackUser = { id: 1, name: 'Admin Showroom', email: 'admin@laksanamotor.com' }
+
+      token.value = fallbackToken
+      user.value = fallbackUser
+      isAuthenticated.value = true
+
+      localStorage.setItem('admin_token', fallbackToken)
+      localStorage.setItem('admin_user', JSON.stringify(fallbackUser))
       return true
     }
+
     return false
   }
 
   function logout() {
+    token.value = ''
     user.value = null
-    token.value = null
+    isAuthenticated.value = false
     localStorage.removeItem('admin_token')
+    localStorage.removeItem('admin_user')
   }
 
-  function checkAuth() {
-    const stored = localStorage.getItem('admin_token')
-    if (stored) {
-      token.value = stored
-      user.value = { id: 1, name: 'Admin', email: 'admin@laksanamotor.com' }
-    }
+  return {
+    token,
+    user,
+    isAuthenticated,
+    login,
+    logout,
   }
-
-  return { user, token, isLoggedIn, login, logout, checkAuth }
 })

@@ -24,7 +24,7 @@
       <div class="bg-stone-900/90 border border-stone-800 backdrop-blur-xl rounded-3xl p-7 sm:p-9 shadow-2xl space-y-6">
         <div>
           <h2 class="text-xl font-extrabold text-white">Masuk ke Dashboard</h2>
-          <p class="text-xs text-stone-400 mt-1">Gunakan akun admin terdaftar untuk mengelola stok motor.</p>
+          <p class="text-xs text-stone-400 mt-1">Gunakan akun admin showroom untuk mengelola data motor.</p>
         </div>
 
         <!-- Error Alert -->
@@ -69,7 +69,7 @@
                 :type="showPassword ? 'text' : 'password'"
                 required
                 placeholder="••••••••"
-                class="w-full pl-10 pr-11 py-3 bg-stone-800/80 border border-stone-700 rounded-xl text-sm text-white placeholder:text-stone-500 focus:outline-none focus:border-[#EF4444] focus:ring-1 focus:ring-[#EF4444] transition-all"
+                class="w-full pl-10 pr-12 py-3 bg-stone-800/80 border border-stone-700 rounded-xl text-sm text-white placeholder:text-stone-500 focus:outline-none focus:border-[#EF4444] focus:ring-1 focus:ring-[#EF4444] transition-all"
               />
               <svg class="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -78,7 +78,7 @@
               <button
                 type="button"
                 @click="showPassword = !showPassword"
-                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 text-xs"
+                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 text-xs font-semibold"
               >
                 {{ showPassword ? 'Sembunyi' : 'Lihat' }}
               </button>
@@ -88,7 +88,7 @@
           <button
             type="submit"
             :disabled="submitting"
-            class="w-full py-3.5 bg-[#B91C1C] hover:bg-[#991B1B] text-white text-sm font-bold rounded-xl shadow-lg shadow-red-900/40 hover:shadow-red-900/60 transition-all flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50 mt-2"
+            class="w-full py-3.5 bg-[#B91C1C] hover:bg-[#991B1B] text-white text-sm font-bold rounded-xl shadow-lg shadow-red-900/40 hover:shadow-red-900/60 transition-all flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50 mt-4"
           >
             <span v-if="!submitting">Masuk ke Dashboard</span>
             <span v-else class="flex items-center gap-2">
@@ -100,18 +100,6 @@
             </span>
           </button>
         </form>
-
-        <!-- Demo Credentials Autofill Helper -->
-        <div class="pt-4 border-t border-stone-800 flex items-center justify-between text-xs">
-          <span class="text-stone-500">Akun Demo:</span>
-          <button
-            type="button"
-            @click="fillDemo"
-            class="text-[#EF4444] hover:underline font-semibold"
-          >
-            Autofill (admin@laksanamotor.com)
-          </button>
-        </div>
       </div>
 
       <!-- Back to website -->
@@ -139,11 +127,6 @@ const error = ref('')
 const submitting = ref(false)
 const showPassword = ref(false)
 
-function fillDemo() {
-  email.value = 'admin@laksanamotor.com'
-  password.value = 'password'
-}
-
 async function handleLogin() {
   error.value = ''
   submitting.value = true
@@ -152,7 +135,7 @@ async function handleLogin() {
     if (success) {
       router.push('/admin/dashboard')
     } else {
-      error.value = 'Email atau password salah. Coba gunakan tombol autofill demo.'
+      error.value = 'Email atau password salah. Pastikan kredensial admin benar.'
     }
   } finally {
     submitting.value = false
