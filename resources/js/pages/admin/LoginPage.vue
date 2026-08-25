@@ -7,16 +7,16 @@
 
     <!-- Login Container -->
     <div class="relative z-10 w-full max-w-md">
-      <!-- Brand Header with LM Monogram (Light Mode) -->
-      <div class="text-center mb-8">
-        <RouterLink to="/" class="inline-flex items-center gap-1.5 leading-none mb-3 group">
+      <!-- Brand Header with Logo (Light Mode, always visible & centered on mobile) -->
+      <div class="flex flex-col items-center justify-center text-center mb-6 sm:mb-8">
+        <RouterLink to="/" class="inline-flex items-center justify-center gap-2 mb-3 group transition-transform active:scale-95">
           <Logo variant="light" size="lg" />
         </RouterLink>
         <p class="text-xs sm:text-sm font-semibold text-stone-500">Portal Manajemen Showroom Otomotif</p>
       </div>
 
       <!-- Clean White Card -->
-      <div class="bg-white border border-stone-200/80 rounded-3xl p-7 sm:p-9 shadow-xl shadow-stone-200/60 space-y-6">
+      <div class="bg-white border border-stone-200/80 rounded-3xl p-6 sm:p-9 shadow-xl shadow-stone-200/60 space-y-6">
         <div>
           <h2 class="text-xl font-black text-stone-900 tracking-tight">Masuk ke Dashboard</h2>
           <p class="text-xs text-stone-500 mt-1">Gunakan akun admin showroom untuk mengelola data motor.</p>

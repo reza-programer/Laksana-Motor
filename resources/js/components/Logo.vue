@@ -4,7 +4,7 @@
     <div
       v-if="settingsStore.customLogoUrl"
       class="relative flex items-center justify-center rounded-xl overflow-hidden shrink-0"
-      :class="badgeSizeClasses"
+      :class="customLogoClasses"
     >
       <img
         :src="settingsStore.customLogoUrl"
@@ -102,15 +102,27 @@ const badgeSizeClasses = computed(() => {
   }
 })
 
+const customLogoClasses = computed(() => {
+  switch (props.size) {
+    case 'sm':
+      return 'h-7 max-w-[120px]'
+    case 'lg':
+      return 'h-12 max-w-[220px]'
+    case 'md':
+    default:
+      return 'h-9 max-w-[160px]'
+  }
+})
+
 const textSizeClasses = computed(() => {
   switch (props.size) {
     case 'sm':
       return 'text-base'
     case 'lg':
-      return 'text-2xl'
+      return 'text-xl sm:text-2xl'
     case 'md':
     default:
-      return 'text-xl'
+      return 'text-lg sm:text-xl'
   }
 })
 </script>

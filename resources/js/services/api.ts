@@ -1,5 +1,5 @@
 import type { Motor, MotorFilter, Promo, Testimonial } from '@/types'
-import { mockMotors, mockPromos, mockTestimonials, WHATSAPP_NUMBER } from './mockData'
+import { WHATSAPP_NUMBER } from './mockData'
 
 const API_BASE = '/api'
 
@@ -40,34 +40,10 @@ export async function fetchMotors(
       }
     }
   } catch (err) {
-    console.warn('API fallback to local data:', err)
+    console.error('Failed to fetch motors from API:', err)
   }
 
-  // Fallback to local mockMotors
-  let filtered = [...mockMotors]
-  if (filters) {
-    if (filters.search) {
-      const q = filters.search.toLowerCase()
-      filtered = filtered.filter(m => m.name.toLowerCase().includes(q) || m.brand.toLowerCase().includes(q))
-    }
-    if (filters.brand && filters.brand !== 'Semua') {
-      filtered = filtered.filter(m => m.brand === filters.brand)
-    }
-    if (filters.status) {
-      filtered = filtered.filter(m => m.status === filters.status)
-    }
-    if (filters.transmission) {
-      filtered = filtered.filter(m => m.transmission === filters.transmission)
-    }
-    if (filters.minPrice != null) filtered = filtered.filter(m => m.price >= filters.minPrice!)
-    if (filters.maxPrice != null) filtered = filtered.filter(m => m.price <= filters.maxPrice!)
-    if (filters.minYear != null) filtered = filtered.filter(m => m.year >= filters.minYear!)
-    if (filters.maxYear != null) filtered = filtered.filter(m => m.year <= filters.maxYear!)
-  }
-  const total = filtered.length
-  const lastPage = Math.ceil(total / perPage) || 1
-  const start = (page - 1) * perPage
-  return { data: filtered.slice(start, start + perPage), total, lastPage }
+  return { data: [], total: 0, lastPage: 1 }
 }
 
 export async function fetchMotor(id: number): Promise<Motor | null> {
@@ -77,9 +53,9 @@ export async function fetchMotor(id: number): Promise<Motor | null> {
       return await res.json()
     }
   } catch (err) {
-    console.warn('API fallback:', err)
+    console.error('Failed to fetch motor by id:', err)
   }
-  return mockMotors.find(m => m.id === Number(id)) || null
+  return null
 }
 
 export async function fetchFeaturedMotors(): Promise<Motor[]> {
@@ -89,9 +65,9 @@ export async function fetchFeaturedMotors(): Promise<Motor[]> {
       return await res.json()
     }
   } catch (err) {
-    console.warn('API fallback:', err)
+    console.error('Failed to fetch featured motors:', err)
   }
-  return mockMotors.filter(m => m.is_featured && m.status !== 'Terjual')
+  return []
 }
 
 export async function fetchMotorBrands(): Promise<string[]> {
@@ -101,14 +77,14 @@ export async function fetchMotorBrands(): Promise<string[]> {
       return await res.json()
     }
   } catch (err) {
-    console.warn('API fallback:', err)
+    console.error('Failed to fetch brands:', err)
   }
-  return [...new Set(mockMotors.map(m => m.brand))].sort()
+  return []
 }
 
 // ─── Admin Motor CRUD ────────────────────────────
 
-export async function createMotor(data: Partial<Motor>): Promise<Motor> {
+export async function createMotor(data: Partial<Motor>): Promise<Motor | null> {
   try {
     const res = await fetch(`${API_BASE}/motors`, {
       method: 'POST',
@@ -119,27 +95,9 @@ export async function createMotor(data: Partial<Motor>): Promise<Motor> {
       return await res.json()
     }
   } catch (err) {
-    console.warn('API create fallback:', err)
+    console.error('Failed to create motor:', err)
   }
-  const newMotor: Motor = {
-    id: Date.now(),
-    brand: data.brand || '',
-    name: data.name || '',
-    year: data.year || new Date().getFullYear(),
-    price: data.price || 0,
-    mileage: data.mileage || 0,
-    color: data.color || '',
-    transmission: data.transmission || 'Otomatis',
-    condition: data.condition || '',
-    description: data.description || '',
-    status: data.status || 'Tersedia',
-    is_featured: data.is_featured || false,
-    images: data.images || [],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }
-  mockMotors.unshift(newMotor)
-  return newMotor
+  return null
 }
 
 export async function updateMotor(id: number, data: Partial<Motor>): Promise<Motor | null> {
@@ -153,12 +111,9 @@ export async function updateMotor(id: number, data: Partial<Motor>): Promise<Mot
       return await res.json()
     }
   } catch (err) {
-    console.warn('API update fallback:', err)
+    console.error('Failed to update motor:', err)
   }
-  const idx = mockMotors.findIndex(m => m.id === id)
-  if (idx === -1) return null
-  mockMotors[idx] = { ...mockMotors[idx], ...data, updated_at: new Date().toISOString() }
-  return mockMotors[idx]
+  return null
 }
 
 export async function deleteMotor(id: number): Promise<boolean> {
@@ -167,16 +122,11 @@ export async function deleteMotor(id: number): Promise<boolean> {
       method: 'DELETE',
       headers: { Accept: 'application/json' },
     })
-    if (res.ok) {
-      return true
-    }
+    return res.ok
   } catch (err) {
-    console.warn('API delete fallback:', err)
+    console.error('Failed to delete motor:', err)
+    return false
   }
-  const idx = mockMotors.findIndex(m => m.id === id)
-  if (idx === -1) return false
-  mockMotors.splice(idx, 1)
-  return true
 }
 
 // ─── Promos ─────────────────────────────────────────────
@@ -189,12 +139,12 @@ export async function fetchPromos(activeOnly: boolean = false): Promise<Promo[]>
       return await res.json()
     }
   } catch (err) {
-    console.warn('API promo fallback:', err)
+    console.error('Failed to fetch promos:', err)
   }
-  return activeOnly ? mockPromos.filter(p => p.is_active) : [...mockPromos]
+  return []
 }
 
-export async function createPromo(data: Partial<Promo>): Promise<Promo> {
+export async function createPromo(data: Partial<Promo>): Promise<Promo | null> {
   try {
     const res = await fetch(`${API_BASE}/promos`, {
       method: 'POST',
@@ -203,21 +153,9 @@ export async function createPromo(data: Partial<Promo>): Promise<Promo> {
     })
     if (res.ok) return await res.json()
   } catch (err) {
-    console.warn('API promo create fallback:', err)
+    console.error('Failed to create promo:', err)
   }
-  const newPromo: Promo = {
-    id: Date.now(),
-    title: data.title || '',
-    description: data.description || '',
-    image: data.image || '',
-    start_date: data.start_date || '',
-    end_date: data.end_date || '',
-    is_active: data.is_active ?? true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }
-  mockPromos.unshift(newPromo)
-  return newPromo
+  return null
 }
 
 export async function updatePromo(id: number, data: Partial<Promo>): Promise<Promo | null> {
@@ -229,12 +167,9 @@ export async function updatePromo(id: number, data: Partial<Promo>): Promise<Pro
     })
     if (res.ok) return await res.json()
   } catch (err) {
-    console.warn('API promo update fallback:', err)
+    console.error('Failed to update promo:', err)
   }
-  const idx = mockPromos.findIndex(p => p.id === id)
-  if (idx === -1) return null
-  mockPromos[idx] = { ...mockPromos[idx], ...data, updated_at: new Date().toISOString() }
-  return mockPromos[idx]
+  return null
 }
 
 export async function deletePromo(id: number): Promise<boolean> {
@@ -242,14 +177,11 @@ export async function deletePromo(id: number): Promise<boolean> {
     const res = await fetch(`${API_BASE}/promos/${id}`, {
       method: 'DELETE',
     })
-    if (res.ok) return true
+    return res.ok
   } catch (err) {
-    console.warn('API promo delete fallback:', err)
+    console.error('Failed to delete promo:', err)
+    return false
   }
-  const idx = mockPromos.findIndex(p => p.id === id)
-  if (idx === -1) return false
-  mockPromos.splice(idx, 1)
-  return true
 }
 
 // ─── Testimonials ───────────────────────────────────────
@@ -262,12 +194,12 @@ export async function fetchTestimonials(activeOnly: boolean = false): Promise<Te
       return await res.json()
     }
   } catch (err) {
-    console.warn('API testimonials fallback:', err)
+    console.error('Failed to fetch testimonials:', err)
   }
-  return activeOnly ? mockTestimonials.filter(t => t.is_active) : [...mockTestimonials]
+  return []
 }
 
-export async function createTestimonial(data: Partial<Testimonial>): Promise<Testimonial> {
+export async function createTestimonial(data: Partial<Testimonial>): Promise<Testimonial | null> {
   try {
     const res = await fetch(`${API_BASE}/testimonials`, {
       method: 'POST',
@@ -276,20 +208,9 @@ export async function createTestimonial(data: Partial<Testimonial>): Promise<Tes
     })
     if (res.ok) return await res.json()
   } catch (err) {
-    console.warn('API testi create fallback:', err)
+    console.error('Failed to create testimonial:', err)
   }
-  const newT: Testimonial = {
-    id: Date.now(),
-    name: data.name || '',
-    motor: data.motor || '',
-    content: data.content || '',
-    image: data.image || '',
-    is_active: data.is_active ?? true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }
-  mockTestimonials.unshift(newT)
-  return newT
+  return null
 }
 
 export async function updateTestimonial(id: number, data: Partial<Testimonial>): Promise<Testimonial | null> {
@@ -301,12 +222,9 @@ export async function updateTestimonial(id: number, data: Partial<Testimonial>):
     })
     if (res.ok) return await res.json()
   } catch (err) {
-    console.warn('API testi update fallback:', err)
+    console.error('Failed to update testimonial:', err)
   }
-  const idx = mockTestimonials.findIndex(t => t.id === id)
-  if (idx === -1) return null
-  mockTestimonials[idx] = { ...mockTestimonials[idx], ...data, updated_at: new Date().toISOString() }
-  return mockTestimonials[idx]
+  return null
 }
 
 export async function deleteTestimonial(id: number): Promise<boolean> {
@@ -314,14 +232,11 @@ export async function deleteTestimonial(id: number): Promise<boolean> {
     const res = await fetch(`${API_BASE}/testimonials/${id}`, {
       method: 'DELETE',
     })
-    if (res.ok) return true
+    return res.ok
   } catch (err) {
-    console.warn('API testi delete fallback:', err)
+    console.error('Failed to delete testimonial:', err)
+    return false
   }
-  const idx = mockTestimonials.findIndex(t => t.id === id)
-  if (idx === -1) return false
-  mockTestimonials.splice(idx, 1)
-  return true
 }
 
 // ─── Helpers ────────────────────────────────────────────
