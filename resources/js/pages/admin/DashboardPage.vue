@@ -100,7 +100,7 @@
       <!-- 1. MOBILE VIEW: Responsive Card List (Visible on Mobile Screens < 768px) -->
       <div class="block md:hidden divide-y divide-stone-100">
         <div
-          v-for="motor in mockMotors.slice(0, 5)"
+          v-for="motor in motors.slice(0, 5)"
           :key="motor.id"
           class="p-4 space-y-3 hover:bg-stone-50 transition-colors"
         >
@@ -167,7 +167,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-stone-100 text-stone-700 font-medium">
-            <tr v-for="motor in mockMotors.slice(0, 5)" :key="motor.id" class="hover:bg-stone-50/80 transition-colors">
+            <tr v-for="motor in motors.slice(0, 5)" :key="motor.id" class="hover:bg-stone-50/80 transition-colors">
               <td class="py-3.5 px-6">
                 <div class="flex items-center gap-3">
                   <img :src="getPrimaryImage(motor)" :alt="motor.name" class="w-12 h-9 rounded-lg object-cover bg-stone-100 border border-stone-200 shrink-0" />
@@ -267,9 +267,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { mockMotors, mockPromos } from '@/services/mockData'
-import { formatPrice, formatMileage, getPrimaryImage } from '@/services/api'
+import type { Motor } from '@/types'
+import { formatPrice, formatMileage, getPrimaryImage, fetchMotors, fetchPromos } from '@/services/api'
 
+const motors = ref<Motor[]>([])
 const stats = ref({
   total: 0,
   totalValue: 0,
@@ -279,15 +280,29 @@ const stats = ref({
   activePromos: 0,
 })
 
-onMounted(() => {
-  const totalVal = mockMotors.reduce((acc, m) => acc + m.price, 0)
-  stats.value = {
-    total: mockMotors.length,
-    totalValue: totalVal,
-    available: mockMotors.filter(m => m.status === 'Tersedia').length,
-    booking: mockMotors.filter(m => m.status === 'Booking').length,
-    sold: mockMotors.filter(m => m.status === 'Terjual').length,
-    activePromos: mockPromos.filter(p => p.is_active).length,
+async function loadDashboard() {
+  try {
+    const res = await fetchMotors({}, 1, 100)
+    const list = res.data
+    motors.value = list
+    const totalVal = list.reduce((acc, m) => acc + m.price, 0)
+    
+    const promos = await fetchPromos(true)
+
+    stats.value = {
+      total: list.length,
+      totalValue: totalVal,
+      available: list.filter(m => m.status === 'Tersedia').length,
+      booking: list.filter(m => m.status === 'Booking').length,
+      sold: list.filter(m => m.status === 'Terjual').length,
+      activePromos: promos.length,
+    }
+  } catch (err) {
+    console.warn('Dashboard fetch error:', err)
   }
+}
+
+onMounted(() => {
+  loadDashboard()
 })
 </script>

@@ -46,8 +46,14 @@
       </div>
     </div>
 
+    <!-- Loading State -->
+    <div v-if="loading" class="p-12 text-center text-stone-400 text-xs font-semibold">
+      <div class="w-8 h-8 border-3 border-stone-200 border-t-[#B91C1C] rounded-full animate-spin mx-auto mb-3"></div>
+      <span>Memuat data motor dari database...</span>
+    </div>
+
     <!-- 1. MOBILE VIEW: Responsive Card List (Screen < 768px) -->
-    <div class="block md:hidden space-y-3">
+    <div v-else class="block md:hidden space-y-3">
       <div
         v-for="motor in filteredMotors"
         :key="motor.id"
@@ -120,7 +126,7 @@
     </div>
 
     <!-- 2. DESKTOP VIEW: Full Data Table (Screen >= 768px) -->
-    <div class="hidden md:block bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden">
+    <div v-if="!loading" class="hidden md:block bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-xs text-left">
           <thead class="bg-stone-50 border-b border-stone-100 text-stone-400 font-bold uppercase tracking-wider text-[10px]">
@@ -211,12 +217,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import type { Motor } from '@/types'
-import { mockMotors } from '@/services/mockData'
-import { formatPrice, formatMileage, getPrimaryImage, deleteMotor, updateMotor } from '@/services/api'
+import { formatPrice, formatMileage, getPrimaryImage, deleteMotor, updateMotor, fetchMotors } from '@/services/api'
 
 const motors = ref<Motor[]>([])
 const search = ref('')
 const statusFilter = ref('')
+const loading = ref(true)
 
 const filteredMotors = computed(() => {
   let result = motors.value
@@ -241,12 +247,24 @@ async function toggleFeatured(motor: Motor) {
 
 async function handleDelete(id: number) {
   if (confirm('Apakah Anda yakin ingin menghapus motor ini dari stok showroom?')) {
-    await deleteMotor(id)
-    motors.value = motors.value.filter(m => m.id !== id)
+    const success = await deleteMotor(id)
+    if (success) {
+      motors.value = motors.value.filter(m => m.id !== id)
+    }
+  }
+}
+
+async function loadMotors() {
+  loading.value = true
+  try {
+    const res = await fetchMotors({}, 1, 100)
+    motors.value = res.data
+  } finally {
+    loading.value = false
   }
 }
 
 onMounted(() => {
-  motors.value = [...mockMotors]
+  loadMotors()
 })
 </script>
